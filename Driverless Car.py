@@ -1,5 +1,8 @@
 import RPi.GPIO as GPIO                    #Import GPIO library
-import time                                #Import time library
+import time
+import threading                                #Import time library
+
+
 GPIO.setmode(GPIO.BOARD)                   #Set GPIO pin numbering
 
 TRIG = 8                                  #Associate pin 23 to TRIG
@@ -26,59 +29,65 @@ GPIO.setup(mLA,GPIO.OUT)
 GPIO.setup(mLB,GPIO.OUT)
 GPIO.setup(mLE,GPIO.OUT)
 
+
+def left_us():
+    while GPIO.input(ECHOL)==0:               #Check whether the ECHO is LOW  
+        pulse_startL = time.time()              #Saves the last known time of LOW
+    while GPIO.input(ECHOL)==1:               #Check whether the ECHO is HIGH
+        pulse_endL = time.time()                #Saves the last known time oR HIGH pulse 
+
+    pulse_durationL = pulse_endL - pulse_startL #Get pulse duration to a variable
+    distanceL = pulse_durationL * 17150        #Multiply pulse duration by 17150 to get distance
+    distanceL = round(distanceL, 2)            #Round to two decimal points
+    print("Left",distanceL,"cm")
+
+def fwd_us():    
+    while GPIO.input(ECHOF)==0:               #Check whether the ECHO is LOW  
+        pulse_startF = time.time()              #Saves the last known time of LOW pulse
+    while GPIO.input(ECHOF)==1:               #Check whether the ECHO is HIGH
+        pulse_endF = time.time()                #Saves the last known time of HIGH pulse 
+
+    pulse_durationF = pulse_endF - pulse_startF #Get pulse duration to a variable
+    distanceF = pulse_durationF * 17150        #Multiply pulse duration by 17150 to get distance
+    distanceF = round(distanceF, 2)            #Round to two decimal points
+    print("Front",distanceF,"cm")
+
+def right_us():
+    while GPIO.input(ECHOR)==0:               #Check whether the ECHO is LOW  
+        pulse_startR = time.time()             #Saves the last known time of LOW pulse
+    while GPIO.input(ECHOR)==1:               #Check whether the ECHO is HIGH
+        pulse_endR = time.time()               #Saves the last known time oR HIGH pulse 
+
+    pulse_durationR = pulse_endR - pulse_startR #Get pulse duration to a variable
+    distanceR = pulse_durationR * 17150        #Multiply pulse duration by 17150 to get distance
+    distanceR = round(distanceR, 2)            #Round to two decimal points
+    print("Right",distanceR,"cm")
+
+  
+    
+    
+    
 try:
 
  while True:
 
   GPIO.output(TRIG, False)                 #Set TRIG as LOW
   print("Waiting For SensorF To Settle")
-  time.sleep(1)                            #Delay of 2 seconds
-
-  GPIO.output(TRIG, True)                  #Set TRIG as HIGH
-  time.sleep(0.00001)                      #Delay of 0.00001 seconds
-  GPIO.output(TRIG, False)                 #Set TRIG as LOW
-
-  while GPIO.input(ECHOF)==0:               #Check whether the ECHO is LOW  
-     pulse_startF = time.time()              #Saves the last known time of LOW pulse
-  while GPIO.input(ECHOF)==1:               #Check whether the ECHO is HIGH
-     pulse_endF = time.time()                #Saves the last known time of HIGH pulse 
-
-  pulse_durationF = pulse_endF - pulse_startF #Get pulse duration to a variable
-  distanceF = pulse_durationF * 17150        #Multiply pulse duration by 17150 to get distance
-  distanceF = round(distanceF, 2)            #Round to two decimal points
-  print("Front",distanceF,"cm")
+  time.sleep(1)                 
   
-  GPIO.output(TRIG, True)                  #Set TRIG as HIGH
-  time.sleep(0.00001)                      #Delay of 0.00001 seconds
-  GPIO.output(TRIG, False)
-   
-  while GPIO.input(ECHOR)==0:               #Check whether the ECHO is LOW  
-     pulse_startR = time.time()             #Saves the last known time of LOW pulse
-  while GPIO.input(ECHOR)==1:               #Check whether the ECHO is HIGH
-     pulse_endR = time.time()               #Saves the last known time oR HIGH pulse 
-
-  pulse_durationR = pulse_endR - pulse_startR #Get pulse duration to a variable
-  distanceR = pulse_durationR * 17150        #Multiply pulse duration by 17150 to get distance
-  distanceR = round(distanceR, 2)            #Round to two decimal points
-  print("Right",distanceR,"cm")
-
-
-
-  GPIO.output(TRIG, True)                  #Set TRIG as HIGH
-  time.sleep(0.00001)                      #Delay of 0.00001 seconds
-  GPIO.output(TRIG, False)
-   
-  while GPIO.input(ECHOL)==0:               #Check whether the ECHO is LOW  
-     pulse_startL = time.time()              #Saves the last known time of LOW
-  while GPIO.input(ECHOL)==1:               #Check whether the ECHO is HIGH
-     pulse_endL = time.time()                #Saves the last known time oR HIGH pulse 
-
-  pulse_durationL = pulse_endL - pulse_startL #Get pulse duration to a variable
-  distanceL = pulse_durationL * 17150        #Multiply pulse duration by 17150 to get distance
-  distanceL = round(distanceL, 2)            #Round to two decimal points
-  print("Left",distanceL,"cm")
-
-
+  tl = threading.Thread(target=left_us(),args=())
+  tf = threading.Thread(target=fwd_us(),args=())
+  tr = threading.Thread(target=right_us(),args=())
+  
+  tf.start()
+  tl.start()
+  tr.start()
+  
+  tf.join()
+  tl.join()
+  tr.join()
+    
+  
   if distanceF > 3 and distanceF < 30:      #Check whether the distance is within range
     print("Distance:",distanceF-0.5,"cm")   #Print distance with 0.5 cm calibration
     GPIO.output(mRA,GPIO.HIGH)
