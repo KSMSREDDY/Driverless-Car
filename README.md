@@ -6,7 +6,7 @@ HARDWARE REQUIRED :-
 Raspberry pi 3 (Model B)
 1 Motor Driver (L293D)
 2 BO Motors (300 RPM)
-3 Ultrasonic sensors (HR-04)
+3 Ultrasonic sensors (HC-SR04)
 1 GPS Receiver & Antenna (Ublox Neo-M8N)
 Powerbank (To powerup the Raspberry pi)
 12V Power Source (To run the motors)
