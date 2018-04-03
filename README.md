@@ -4,6 +4,7 @@ This project is currently in progress. Stay tuned for further updates.
 
 HARDWARE REQUIRED :-
 Raspberry pi 3 (Model B)
+1 Bread Board
 1 Motor Driver (L293D)
 2 BO Motors (300 RPM)
 3 Ultrasonic sensors (HC-SR04)
