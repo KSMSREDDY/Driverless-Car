@@ -1,6 +1,3 @@
-This project is currently in progress. Stay tuned for further updates.
-
-
 
 HARDWARE REQUIRED :-
 Raspberry pi 3 (Model B)
